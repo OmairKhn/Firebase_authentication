@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { auth } from './firebaseConfig'; // Ensure the correct path
-import Login from './components/sessions/Login'; // Ensure Login is imported
-import { singular } from 'i/lib/inflections';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { auth } from './firebaseConfig';
+import Login from './components/sessions/Login';
+import Signup from './components/sessions/Signup'; // Ensure the correct path
 import ListAllNumbers from './components/phonebook/ListAllNumbers';
+import AddNumber from './components/phonebook/AddNumber';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -14,31 +15,35 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
   const signOut = () => {
     auth.signOut()
       .catch(error => {
         console.error('Sign out error', error);
       });
   };
-  console.log('logged in?', isLoggedIn);
+
   return (
     <div className="App">
       <Router>
-      
-      
-          {!isLoggedIn ? (
-           <Login/>
-           
-          ) : (
-            <>
-             <span onClick={singular}><a href="#">signOut</a></span>
-             <Routes>
-              <Route path='/' element={<ListAllNumbers/>}/>
-             </Routes>
-            </>
-           
-          )}
-        
+        {!isLoggedIn ? (
+          <>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/" element={<Login />} /> {/* Default to login */}
+            </Routes>
+            <Link to="/signup">Don't have an account? Sign Up</Link>
+          </>
+        ) : (
+          <>
+            <span onClick={signOut}><a href="#">Sign Out</a></span>
+            <Routes>
+              <Route path="/" element={<ListAllNumbers />} />
+              <Route path="/add-number" element={<AddNumber />} />
+            </Routes>
+          </>
+        )}
       </Router>
     </div>
   );
